@@ -1,0 +1,19 @@
+ad_addr: 192.168.56.101
+cidr_v: 172.16.0.0/16
+
+###################################################################################
+# Dont Edit these below values, these are mandatory to configure kubernetes cluster
+packages:
+- kubeadm
+- kubectl
+
+services:
+- kubelet
+
+ports:
+- "6443/tcp"
+- "10250/tcp"
+
+token_file: join_token
+###################################################################################
+# Dont Edit these above values, these are mandatory to configure kubernetes cluster

@@ -1,0 +1,52 @@
+---
+- name: Install docker
+  gather_facts: No
+  hosts: poc_hosts
+
+  tasks:
+    - name: Install Requere package
+      yum:
+          name: "{{ packages }}"
+      vars:
+          packages:
+          - yum-utils
+          - lvm2
+          - device-mapper-persistent-data
+
+    - name: Install docker repository
+      yum_repository:
+        name: '{{ item.name }}'
+        description: '{{ item.desc }}'
+        file: docker-ce
+        baseurl: '{{ item.baseurl }}'
+        enabled: '1'
+        gpgcheck: yes
+        gpgkey: 'https://download.docker.com/linux/centos/gpg'
+        state: present
+      with_items:
+        - { name: 'docker-ce-stable', desc: 'Docker CE Stable - x86_64', baseurl: 'https://download.docker.com/linux/centos/7/x86_64/stable'}
+      become: yes  
+
+    - name: Install Docker
+      yum:
+          name: "{{ packages }}"
+      vars:
+          packages:
+          - docker-ce
+          - docker-ce-cli 
+          - containerd.io
+      become: yes    
+
+    - name: Start Docker service
+      service:
+        name: docker
+        state: started
+        enabled: yes
+      become: yes
+
+    - name: Add local user to docker group
+      user:
+        name: pratigya
+        groups: docker
+        append: yes
+      become: yes

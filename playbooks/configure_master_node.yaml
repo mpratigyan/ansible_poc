@@ -1,0 +1,65 @@
+---
+- hosts: kubernetes_master_node
+  become: yes
+  vars_files:
+  - env_variables 
+  tasks:
+  - name: Pulling images required for setting up a Kubernetes cluster
+    shell: kubeadm config images pull
+
+  - name: Initializing Kubernetes cluster
+    shell: kubeadm init --apiserver-advertise-address {{ad_addr}} --pod-network-cidr={{cidr_v}}
+#    shell: kubeadm init --pod-network-cidr={{cidr_v}}
+    args:
+        chdir: $HOME
+    async: 60
+    poll: 60
+
+  - name: create a new directory to hold kube conf
+    become: yes
+    become_user: pratigya
+    file:
+        path: $HOME/.kube
+        state: directory
+        mode: 0755
+
+  - name: copy configuration file to the newly created dir
+    copy:
+        src: /etc/kubernetes/admin.conf
+        dest: /home/pratigya/.kube/config
+        remote_src: yes
+        owner: pratigya
+  
+  - name: setting permission
+    become: yes
+    become_user: pratigya  
+    shell: chown $(id -u):$(id -g) $HOME/.kube/config
+     
+  # - name: Apply a flannel manifset to init the pod network
+  #   become: yes
+  #   become_user: pratigya
+  #   shell: kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+  #   args:
+  #       chdir: $HOME      
+
+  - name: Apply a calico manifset to init the pod network
+    become: yes
+    become_user: pratigya
+    shell: kubectl apply -f https://docs.projectcalico.org/manifests/calico.yaml 
+    args:
+        chdir: $HOME
+
+  # - name: Get the join command to be used by the worker
+  #   shell: sudo kubeadm token create  --print-join-command
+  #   register: output
+
+  # - name: Save the join command to a local file
+  #   become: yes
+  #   become_user: pratigya
+  #   local_action: copy content={{ output.stdout_lines[0] }} dest={{ token_file }}
+
+  # This will allow schedule pods on controle-plane. Comment this if you have more then one node. 
+  - name: Allow Kubernetes controle-plane to schedule pods on itself
+    become: yes
+    become_user: pratigya
+    shell: kubectl taint node --all node-role.kubernetes.io/control-plane:NoSchedule-

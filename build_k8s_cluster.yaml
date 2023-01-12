@@ -1,0 +1,6 @@
+---
+- import_playbook: playbooks/prerequisites.yaml
+- import_playbook: playbooks/Install_docker.yaml
+- import_playbook: playbooks/disable_swap.yaml
+- import_playbook: playbooks/setting_up_nodes.yaml
+- import_playbook: playbooks/configure_master_node.yaml

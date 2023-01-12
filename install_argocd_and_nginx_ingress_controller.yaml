@@ -1,0 +1,3 @@
+---
+#- import_playbook: playbooks/install_nginx_controller_in_cluster.yaml
+- import_playbook: playbooks/install_argocd_in_cluster.yaml

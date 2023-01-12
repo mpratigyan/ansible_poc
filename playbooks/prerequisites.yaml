@@ -1,0 +1,32 @@
+---
+  - name: configure basic tools for new vm
+    hosts: poc_hosts
+    become: yes
+    become_user: root
+    gather_facts: No
+    tasks:
+      - name: Install a list of packages 
+        yum:
+          name: "{{ packages }}"
+        vars:
+          packages:
+          - vim
+          - net-tools
+          - wget
+          - util-linux       
+      - name: Disable Selinux
+        ansible.posix.selinux:
+            policy: targeted
+            state: disabled
+     
+      - name: Disable Firewall  
+        service:
+          name: firewalld
+          state: stopped
+          enabled: no
+
+      - name:  Upgrade all packages
+        yum:
+            name: '*'
+            state: latest
+
