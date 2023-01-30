@@ -1,6 +1,6 @@
 ---
 - hosts: kubernetes_master_node
-  become_user: pratigya 
+  become_user: pratigyan 
   become: yes
   gather_facts: No
   vars_files:
@@ -11,29 +11,33 @@
       copy:
         src: argocd_2.5.4_deploy.yaml
         dest: $HOME/argocd_2.5.4_deploy.yaml
-        owner: pratigya
+        owner: pratigyan
         mode: u=rw,g=rw,o=rw
 
     - name: Copy argocd_ingress.yaml with owner and permissions
       copy:
         src: argocd_ingress.yaml
         dest: $HOME/argocd_ingress.yaml
-        owner: pratigya
+        owner: pratigyan
         mode: u=rw,g=rw,o=rw
 
 # comment this if namespace already exist
     - name: Create argocd namespace on Cluster
       command: kubectl create namespace argocd
 
-# # comment this if namespace already exist
-#     - name: Create my-apps namespace on Cluster for all the applications
-#       command: kubectl create namespace my-apps 
-         
+# comment this if namespace already exist
+    - name: Create database namespace on Cluster
+      command: kubectl create namespace database      
+
+ # comment this if namespace already exist
+    - name: Create my-apps namespace on Cluster for all the applications
+      command: kubectl create namespace my-apps 
+
     - name: Install Argocd on Cluster
       command: kubectl apply -n argocd -f $HOME/argocd_2.5.4_deploy.yaml
 
-    - name: Configure Argocd Ingress on Cluster
-      command: kubectl apply -n argocd -f $HOME/argocd_ingress.yaml
+    # - name: Configure Argocd Ingress on Cluster
+    #   command: kubectl apply -n argocd -f $HOME/argocd_ingress.yaml
 
-    - name: Configure Argocd Ingress on Cluster
-      command: kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
+    # - name: Configure Argocd Ingress on Cluster
+    #   command: kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d

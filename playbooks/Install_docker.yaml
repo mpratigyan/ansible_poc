@@ -46,7 +46,7 @@
 
     - name: Add local user to docker group
       user:
-        name: pratigya
+        name: pratigyan
         groups: docker
         append: yes
       become: yes

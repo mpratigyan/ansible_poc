@@ -1,6 +1,6 @@
 ---
 - hosts: kubernetes_master_node
-  become_user: pratigya 
+  become_user: pratigyan 
   become: yes
   gather_facts: No
   vars_files:
@@ -11,13 +11,20 @@
       copy:
         src: nginx_ingress_controller_deploy.yaml 
         dest: $HOME/nginx_ingress_controller_deploy.yaml
-        owner: pratigya
+        owner: pratigyan
         mode: u=rw,g=rw,o=rw
 
 # comment this if namespace already exist
-    - name: Create ingress-nginx namespace on Cluster
-      command: kubectl create namespace ingress-nginx
-         
+    # - name: Create ingress-nginx namespace on Cluster
+    #   command: kubectl create namespace ingress-nginx
+
+    - name: Create nginx-ingress namespace
+      kubernetes.core.k8s:
+        name: nginx-ingress
+        api_version: v1
+        kind: Namespace
+        state: present
+
     - name: Install nginx-ingress-controller on Cluster
       command: kubectl apply -n ingress-nginx -f $HOME/nginx_ingress_controller_deploy.yaml 
       
